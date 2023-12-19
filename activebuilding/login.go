@@ -2,6 +2,7 @@ package activebuilding
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -9,8 +10,12 @@ import (
 	"github.com/gocolly/colly/v2"
 )
 
+// A Client accesses an activebuilding portal.
+//
+// Methods are generally not safe to call concurrently.
 type Client struct {
 	collector *colly.Collector
+	baseURL   *url.URL
 }
 
 func NewClient() *Client {
@@ -53,5 +58,37 @@ func (c *Client) Login(loginURL, email, password string) error {
 		return errors.New("login password was incorrect")
 	}
 
+	c.baseURL = lastURL
+
 	return nil
+}
+
+// State gathers the client's state to be loaded by SetState().
+func (c *Client) State() *ClientState {
+	if c.baseURL == nil {
+		return nil
+	}
+	return &ClientState{
+		BaseURL: c.baseURL.String(),
+		Cookies: c.collector.Cookies(c.baseURL.String()),
+	}
+}
+
+func (c *Client) SetState(state *ClientState) error {
+	c.collector.Init()
+	if state == nil {
+		return nil
+	}
+	c.collector.SetCookies(state.BaseURL, state.Cookies)
+	var err error
+	c.baseURL, err = url.Parse(state.BaseURL)
+	if err != nil {
+		return fmt.Errorf("failed to load state: %w", err)
+	}
+	return nil
+}
+
+type ClientState struct {
+	BaseURL string
+	Cookies []*http.Cookie
 }
