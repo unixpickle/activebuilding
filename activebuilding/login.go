@@ -10,6 +10,10 @@ import (
 	"github.com/gocolly/colly/v2"
 )
 
+var (
+	ErrNotLoggedIn = errors.New("not logged in")
+)
+
 // A Client accesses an activebuilding portal.
 //
 // Methods are generally not safe to call concurrently.

@@ -35,6 +35,13 @@ func main() {
 		essentials.Must(client.Login(loginURL, username, password))
 		essentials.Must(SaveState(statePath, client.State()))
 	}
+
+	log.Printf("collecting packages...")
+	packages, err := client.Packages()
+	essentials.Must(err)
+	for _, p := range packages {
+		fmt.Printf("%#v\n", p)
+	}
 }
 
 func LoadState(path string) (*activebuilding.ClientState, error) {
