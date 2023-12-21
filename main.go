@@ -49,6 +49,11 @@ func main() {
 	for _, m := range messages {
 		fmt.Printf("%#v\n", m)
 	}
+
+	log.Printf("fetching first message...")
+	message, err := client.Message(messages[0].ID, messages[0].Folder)
+	essentials.Must(err)
+	fmt.Printf("%#v\n", message)
 }
 
 func LoadState(path string) (*activebuilding.ClientState, error) {

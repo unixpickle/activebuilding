@@ -1,7 +1,9 @@
 package activebuilding
 
 import (
+	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -32,6 +34,15 @@ type MessageListing struct {
 	Preview string
 }
 
+// MessageBody is the full contents of a message.
+type MessageBody struct {
+	BodyHTML string
+	BodyText string
+}
+
+// Inbox fetches an overview of messages in the user's inbox.
+//
+// To get more details about a message, see Message().
 func (c *Client) Inbox() ([]*MessageListing, error) {
 	tableSelector := ".messages-container-section table"
 	messages := []*MessageListing{}
@@ -95,4 +106,42 @@ func (c *Client) Inbox() ([]*MessageListing, error) {
 		return nil, parseError
 	}
 	return messages, nil
+}
+
+// Message fetches the body of a message.
+func (c *Client) Message(id, folder string) (*MessageBody, error) {
+	textSelector := ".message-text"
+	var result *MessageBody
+	c.collector.OnHTML(textSelector, func(h *colly.HTMLElement) {
+		if result != nil {
+			return
+		}
+		var buf strings.Builder
+		for _, node := range h.DOM.Nodes {
+			child := node.FirstChild
+			for child != nil {
+				html.Render(&buf, child)
+				child = child.NextSibling
+			}
+		}
+		result = &MessageBody{
+			BodyText: h.Text,
+			BodyHTML: buf.String(),
+		}
+	})
+	defer c.collector.OnHTMLDetach(textSelector)
+
+	path := fmt.Sprintf(
+		"/portal/messages/view/messageId/%s/folder/%s",
+		url.PathEscape(id),
+		url.PathEscape(folder),
+	)
+	err := c.visitWithLoginCheck(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch message: %w", err)
+	}
+	if result == nil {
+		return nil, errors.New("failed to fetch message: no text contents were found")
+	}
+	return result, nil
 }
