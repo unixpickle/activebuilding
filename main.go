@@ -36,11 +36,18 @@ func main() {
 		essentials.Must(SaveState(statePath, client.State()))
 	}
 
-	log.Printf("collecting packages...")
+	log.Printf("listing packages...")
 	packages, err := client.Packages()
 	essentials.Must(err)
 	for _, p := range packages {
 		fmt.Printf("%#v\n", p)
+	}
+
+	log.Printf("listing messages...")
+	messages, err := client.Inbox()
+	essentials.Must(err)
+	for _, m := range messages {
+		fmt.Printf("%#v\n", m)
 	}
 }
 

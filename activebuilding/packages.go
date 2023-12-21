@@ -2,8 +2,6 @@ package activebuilding
 
 import (
 	"fmt"
-	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/gocolly/colly/v2"
@@ -50,22 +48,11 @@ func (c *Client) Packages() ([]*Package, error) {
 			})
 		}
 	})
-	var redirected *url.URL
-	c.collector.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
-		redirected = req.URL
-		return nil
-	})
 	defer c.collector.OnHTMLDetach(tableSelector)
-	defer c.collector.SetRedirectHandler(nil)
 
-	destURL := *c.baseURL
-	destURL.Path = packagesPath
-	err := c.collector.Visit(destURL.String())
+	err := c.visitWithLoginCheck(packagesPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find packages: %w", err)
-	}
-	if redirected != nil {
-		return nil, fmt.Errorf("failed to find packages: %w (redirected to %s)", ErrNotLoggedIn, redirected)
 	}
 	return packages, nil
 }
