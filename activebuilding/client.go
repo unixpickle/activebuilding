@@ -60,9 +60,7 @@ func (c *Client) visitWithLoginCheck(path string) error {
 	})
 	defer c.collector.SetRedirectHandler(nil)
 
-	destURL := *c.baseURL
-	destURL.Path = path
-	err := c.collector.Visit(destURL.String())
+	err := c.collector.Visit(c.urlForPath(path))
 	if err != nil {
 		return err
 	}
@@ -70,6 +68,29 @@ func (c *Client) visitWithLoginCheck(path string) error {
 		return fmt.Errorf("%w (redirected to %s)", ErrNotLoggedIn, redirected)
 	}
 	return nil
+}
+
+func (c *Client) withLoginCheck(f func() error) error {
+	var redirected *url.URL
+	c.collector.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
+		redirected = req.URL
+		return nil
+	})
+	defer c.collector.SetRedirectHandler(nil)
+
+	if err := f(); err != nil {
+		return err
+	}
+	if redirected != nil {
+		return fmt.Errorf("%w (redirected to %s)", ErrNotLoggedIn, redirected)
+	}
+	return nil
+}
+
+func (c *Client) urlForPath(path string) string {
+	u := *c.baseURL
+	u.Path = path
+	return u.String()
 }
 
 type ClientState struct {

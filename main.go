@@ -36,24 +36,30 @@ func main() {
 		essentials.Must(SaveState(statePath, client.State()))
 	}
 
-	log.Printf("listing packages...")
-	packages, err := client.Packages()
+	posts, err := client.WallPage(1)
 	essentials.Must(err)
-	for _, p := range packages {
-		fmt.Printf("%#v\n", p)
+	for _, post := range posts {
+		fmt.Printf("%#v\n", post)
 	}
 
-	log.Printf("listing messages...")
-	messages, err := client.Inbox()
-	essentials.Must(err)
-	for _, m := range messages {
-		fmt.Printf("%#v\n", m)
-	}
+	// log.Printf("listing packages...")
+	// packages, err := client.Packages()
+	// essentials.Must(err)
+	// for _, p := range packages {
+	// 	fmt.Printf("%#v\n", p)
+	// }
 
-	log.Printf("fetching first message...")
-	message, err := client.Message(messages[0].ID, messages[0].Folder)
-	essentials.Must(err)
-	fmt.Printf("%#v\n", message)
+	// log.Printf("listing messages...")
+	// messages, err := client.Inbox()
+	// essentials.Must(err)
+	// for _, m := range messages {
+	// 	fmt.Printf("%#v\n", m)
+	// }
+
+	// log.Printf("fetching first message...")
+	// message, err := client.Message(messages[0].ID, messages[0].Folder)
+	// essentials.Must(err)
+	// fmt.Printf("%#v\n", message)
 }
 
 func LoadState(path string) (*activebuilding.ClientState, error) {
