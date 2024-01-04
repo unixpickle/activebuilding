@@ -120,7 +120,7 @@ func (c *Client) Message(id, folder string) (*MessageBody, error) {
 		for _, node := range h.DOM.Nodes {
 			child := node.FirstChild
 			for child != nil {
-				html.Render(&buf, child)
+				SanitizeHTML(&buf, child)
 				child = child.NextSibling
 			}
 		}

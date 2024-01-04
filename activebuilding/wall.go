@@ -75,7 +75,7 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 						node = node.NextSibling
 						continue
 					} else {
-						html.Render(&htmlBuf, node)
+						SanitizeHTML(&htmlBuf, node)
 						post.ContentsText += goquery.NewDocumentFromNode(node).Text() + "\n"
 					}
 					node = node.NextSibling
