@@ -18,6 +18,7 @@ const (
 
 type WallPost struct {
 	PosterName      string
+	RelativeTime    string
 	MarketplaceName string
 	ContentsText    string
 	ContentsHTML    string
@@ -66,6 +67,9 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 			post.PosterName = nameObj.Text()
 		})
 		var htmlBuf strings.Builder
+		postObj.Find(".post-time-holder").Each(func(_ int, contentObj *goquery.Selection) {
+			post.RelativeTime = contentObj.Text()
+		})
 		postObj.Find(".post-main-content").Each(func(_ int, contentObj *goquery.Selection) {
 			for _, parentNode := range contentObj.Nodes {
 				node := parentNode.FirstChild
@@ -85,6 +89,7 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 		})
 		post.ContentsHTML = htmlBuf.String()
 		post.ContentsText = strings.TrimSpace(post.ContentsText)
+
 		posts = append(posts, &post)
 	})
 	return posts, nil

@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/gocolly/colly/v2"
+	"github.com/gocolly/colly/v2/storage"
 )
 
 var (
@@ -22,8 +23,10 @@ type Client struct {
 }
 
 func NewClient() *Client {
+	c := colly.NewCollector()
+	c.SetStorage(&dummyStorage{})
 	return &Client{
-		collector: colly.NewCollector(),
+		collector: c,
 	}
 }
 
@@ -40,6 +43,7 @@ func (c *Client) State() *ClientState {
 
 func (c *Client) SetState(state *ClientState) error {
 	c.collector.Init()
+	c.collector.SetStorage(&dummyStorage{})
 	if state == nil {
 		return nil
 	}
@@ -96,4 +100,13 @@ func (c *Client) urlForPath(path string) string {
 type ClientState struct {
 	BaseURL string
 	Cookies []*http.Cookie
+}
+
+type dummyStorage struct {
+	storage.InMemoryStorage
+}
+
+func (d *dummyStorage) Visited(requestID uint64) error {
+	// Do not cache every URL we visit.
+	return nil
 }
