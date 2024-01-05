@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/unixpickle/activebuilding/activebuilding"
@@ -14,7 +15,9 @@ import (
 
 func main() {
 	var statePath string
+	var addr string
 	flag.StringVar(&statePath, "state-path", "state.json", "client state")
+	flag.StringVar(&addr, "addr", ":8080", "address to listen on")
 	flag.Parse()
 
 	loginURL := os.Getenv("LOGIN_URL")
@@ -24,42 +27,22 @@ func main() {
 		essentials.Die("Must pass env vars: LOGIN_URL, USERNAME, and PASSWORD")
 	}
 	client := activebuilding.NewClient()
-
-	if _, err := os.Stat(statePath); err == nil {
-		log.Printf("loading from state: %s...", statePath)
-		state, err := LoadState(statePath)
-		essentials.Must(err)
-		essentials.Must(client.SetState(state))
-	} else {
-		log.Printf("no state found; logging in...")
-		essentials.Must(client.Login(loginURL, username, password))
-		essentials.Must(SaveState(statePath, client.State()))
+	apiServer := &APIServer{
+		Client:    client,
+		StatePath: statePath,
+		LoginURL:  loginURL,
+		Email:     username,
+		Password:  password,
 	}
-
-	posts, err := client.WallPage(1)
-	essentials.Must(err)
-	for _, post := range posts {
-		fmt.Printf("%#v\n", post)
+	if err := apiServer.LoadState(); err != nil {
+		essentials.Die("failed to load state:", err)
 	}
-
-	// log.Printf("listing packages...")
-	// packages, err := client.Packages()
-	// essentials.Must(err)
-	// for _, p := range packages {
-	// 	fmt.Printf("%#v\n", p)
-	// }
-
-	// log.Printf("listing messages...")
-	// messages, err := client.Inbox()
-	// essentials.Must(err)
-	// for _, m := range messages {
-	// 	fmt.Printf("%#v\n", m)
-	// }
-
-	// log.Printf("fetching first message...")
-	// message, err := client.Message(messages[0].ID, messages[0].Folder)
-	// essentials.Must(err)
-	// fmt.Printf("%#v\n", message)
+	http.HandleFunc("/api/inbox", apiServer.Inbox)
+	http.HandleFunc("/api/message", apiServer.Message)
+	http.HandleFunc("/api/packages", apiServer.Packages)
+	http.HandleFunc("/api/wall", apiServer.Wall)
+	log.Printf("attempting to listen on: %s", addr)
+	http.ListenAndServe(addr, nil)
 }
 
 func LoadState(path string) (*activebuilding.ClientState, error) {
