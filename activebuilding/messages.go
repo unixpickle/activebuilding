@@ -16,28 +16,28 @@ const (
 
 type MessageListing struct {
 	// ID is typically numerical, like "12345678"
-	ID string
+	ID string `json:"id"`
 
 	// Folder might be something like "inbox"
-	Folder string
+	Folder string `json:"folder"`
 
 	// This is a human-readable timestamp.
-	LastActivity string
+	LastActivity string `json:"last_activity"`
 
 	// Name of sender (typically plain text, not a real username)
-	Username string
+	Username string `json:"username"`
 
 	// First line of message preview, typically shown in bold.
-	Subject string
+	Subject string `json:"subject"`
 
 	// Beginning of body, typically with ellipses.
-	Preview string
+	Preview string `json:"preview"`
 }
 
 // MessageBody is the full contents of a message.
 type MessageBody struct {
-	BodyHTML string
-	BodyText string
+	BodyHTML string `json:"body_html"`
+	BodyText string `json:"body_text"`
 }
 
 // Inbox fetches an overview of messages in the user's inbox.

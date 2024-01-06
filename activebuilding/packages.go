@@ -16,11 +16,11 @@ const (
 //
 // If ReleasedBy is nil, then the package has not yet been picked up.
 type Package struct {
-	Arrival     string
-	Type        string
-	Description string
-	AcceptedBy  string
-	ReleasedBy  *string
+	Arrival     string  `json:"arrival"`
+	Type        string  `json:"type"`
+	Description string  `json:"description"`
+	AcceptedBy  string  `json:"accepted_by"`
+	ReleasedBy  *string `json:"released_by"`
 }
 
 // Packages lists the tenant's recent mail.
