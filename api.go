@@ -60,8 +60,9 @@ func (a *APIServer) Inbox(w http.ResponseWriter, r *http.Request) {
 
 func (a *APIServer) Message(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("id")
+	folder := r.URL.Query().Get("folder")
 	handleAPICall(a, w, func() (*activebuilding.MessageBody, error) {
-		return a.Client.Message(id, "inbox")
+		return a.Client.Message(id, folder)
 	})
 }
 
