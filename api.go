@@ -91,6 +91,16 @@ func retryWithLogin[T any](a *APIServer, f func() (T, error)) (T, error) {
 	a.usageLock.Lock()
 	defer a.usageLock.Unlock()
 	var zero T
+	if a.Client.MustLogin() {
+		log.Print("must login before making any API calls")
+		if err := a.Client.Login(a.LoginURL, a.Email, a.Password); err != nil {
+			return zero, err
+		}
+		if err := a.saveState(); err != nil {
+			return zero, fmt.Errorf("failed to save state after logging in: %w", err)
+		}
+		return f()
+	}
 	result, err := f()
 	if err == nil {
 		return result, nil

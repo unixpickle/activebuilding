@@ -16,8 +16,10 @@ import (
 func main() {
 	var statePath string
 	var addr string
+	var assetDir string
 	flag.StringVar(&statePath, "state-path", "state.json", "client state")
 	flag.StringVar(&addr, "addr", ":8080", "address to listen on")
+	flag.StringVar(&assetDir, "asset-dir", "./web", "address to listen on")
 	flag.Parse()
 
 	loginURL := os.Getenv("LOGIN_URL")
@@ -41,6 +43,7 @@ func main() {
 	http.HandleFunc("/api/message", apiServer.Message)
 	http.HandleFunc("/api/packages", apiServer.Packages)
 	http.HandleFunc("/api/wall", apiServer.Wall)
+	http.Handle("/", http.FileServer(http.Dir(assetDir)))
 	log.Printf("attempting to listen on: %s", addr)
 	http.ListenAndServe(addr, nil)
 }

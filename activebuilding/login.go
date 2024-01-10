@@ -10,6 +10,10 @@ import (
 )
 
 func (c *Client) Login(loginURL, email, password string) error {
+	// Make the redirect URL correct, as opposed to
+	// redirecting to a page we had tried to go to.
+	c.SetState(nil)
+
 	formInputs := map[string]string{}
 	var lastURL *url.URL
 	c.collector.SetRedirectHandler(func(r *http.Request, via []*http.Request) error {
@@ -39,7 +43,7 @@ func (c *Client) Login(loginURL, email, password string) error {
 	// If we stayed on the login page, then the password was wrong.
 	// Good password => https://*.activebuilding.com/portal/resident-dashboard
 	comps1 := strings.Split(lastURL.Path, "/")
-	if comps1[len(comps)-1] == comps[len(comps)-1] {
+	if comps1[len(comps1)-1] == comps[len(comps)-1] {
 		return errors.New("login password was incorrect")
 	}
 

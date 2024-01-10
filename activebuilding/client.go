@@ -30,6 +30,14 @@ func NewClient() *Client {
 	}
 }
 
+// MustLogin returns true if the client definitely doesn't have credentials to
+// make API calls.
+//
+// If this returns true, then other methods may panic() if called.
+func (c *Client) MustLogin() bool {
+	return c.baseURL == nil
+}
+
 // State gathers the client's state to be loaded by SetState().
 func (c *Client) State() *ClientState {
 	if c.baseURL == nil {
