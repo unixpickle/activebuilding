@@ -6,16 +6,20 @@
         <link rel="stylesheet" href="style.css" type="text/css">
     </head>
     <body>
-        <div id="messages-list-container" class="panel">
+        <div id="messages-list-container" class="panel panel-loading">
             <ol id="messages-list"></ol>
+            <div class="loader"></div>
         </div>
-        <div id="packages-list-container" class="panel">
+        <div id="wall-post-list-container" class="panel panel-loading">
+            <ol id="wall-post-list"></ol>
+            <div class="loader"></div>
+        </div>
+        <div id="packages-list-container" class="panel panel-loading">
             <ol id="packages-list"></ol>
+            <div class="loader"></div>
         </div>
-        <div id="packages-list-container" class="panel">
-            <ol id="packages-list"></ol>
-        </div>
+        <script src="js/api_client.js"></script>
         <script src="js/app.js"></script>
     </body>
-    
+
 </html>

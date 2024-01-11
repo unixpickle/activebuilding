@@ -6,8 +6,8 @@ interface Package {
     released_by: string // may be null for packages which are pending
 }
 
-async function fetch_packages(): Promise<Package[]> {
-    return await fetch_api<Package[]>('/api/packages')
+async function fetchPackages(): Promise<Package[]> {
+    return await fetchAPI<Package[]>('/api/packages')
 }
 
 interface MessageListing {
@@ -19,8 +19,8 @@ interface MessageListing {
     preview: string
 }
 
-async function fetch_inbox(): Promise<MessageListing[]> {
-    return await fetch_api<MessageListing[]>('/api/inbox')
+async function fetchInbox(): Promise<MessageListing[]> {
+    return await fetchAPI<MessageListing[]>('/api/inbox')
 }
 
 interface MessageBody {
@@ -28,10 +28,10 @@ interface MessageBody {
     body_text: string
 }
 
-async function fetch_message(id: string, folder: string): Promise<MessageBody> {
+async function fetchMessage(id: string, folder: string): Promise<MessageBody> {
     const escaped_id = encodeURIComponent(id);
     const escaped_folder = encodeURIComponent(folder);
-    return await fetch_api<MessageBody>(`/api/message?id=${escaped_id}&folder=${escaped_folder}`);
+    return await fetchAPI<MessageBody>(`/api/message?id=${escaped_id}&folder=${escaped_folder}`);
 }
 
 interface WallPost {
@@ -42,8 +42,8 @@ interface WallPost {
     contents_html: string
 }
 
-async function fetch_wall(): Promise<WallPost[]> {
-    return await fetch_api<WallPost[]>('/api/wall')
+async function fetchWall(): Promise<WallPost[]> {
+    return await fetchAPI<WallPost[]>('/api/wall')
 }
 
 interface APIResponse<T> extends Object {
@@ -57,7 +57,7 @@ class APIError extends Error {
     }
 }
 
-async function fetch_api<T>(url: string): Promise<T> {
+async function fetchAPI<T>(url: string): Promise<T> {
     const result = (await (await fetch(url)).json()) as APIResponse<T>
     if (result.hasOwnProperty('error')) {
         throw new APIError(result.error)

@@ -7,9 +7,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-function fetch_packages() {
+function fetchPackages() {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield fetch_api('/api/packages');
+        return yield fetchAPI('/api/packages');
+    });
+}
+function fetchInbox() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield fetchAPI('/api/inbox');
+    });
+}
+function fetchMessage(id, folder) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const escaped_id = encodeURIComponent(id);
+        const escaped_folder = encodeURIComponent(folder);
+        return yield fetchAPI(`/api/message?id=${escaped_id}&folder=${escaped_folder}`);
+    });
+}
+function fetchWall() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return yield fetchAPI('/api/wall');
     });
 }
 class APIError extends Error {
@@ -17,7 +34,7 @@ class APIError extends Error {
         super(`error from API backend: ${message}`);
     }
 }
-function fetch_api(url) {
+function fetchAPI(url) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = (yield (yield fetch(url)).json());
         if (result.hasOwnProperty('error')) {
