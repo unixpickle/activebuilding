@@ -58,7 +58,7 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 		return nil, fmt.Errorf("error fetching wall posts: %w", err)
 	}
 	if responseErr != nil {
-		return nil, fmt.Errorf("error parsing wall post response: %w", err)
+		return nil, fmt.Errorf("error parsing wall post response: %w", responseErr)
 	}
 	var posts []*WallPost
 	responseDoc.Find(".post-content-holder").Each(func(_ int, postObj *goquery.Selection) {
