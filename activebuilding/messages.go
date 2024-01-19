@@ -47,7 +47,13 @@ func (c *Client) Inbox() ([]*MessageListing, error) {
 	tableSelector := ".messages-container-section table"
 	messages := []*MessageListing{}
 	var parseError error
+	var foundContainer bool
+	c.collector.OnHTML(".messages-container-section", func(_ *colly.HTMLElement) {
+		foundContainer = true
+	})
+	defer c.collector.OnHTMLDetach(".messages-container-section")
 	c.collector.OnHTML(tableSelector, func(h *colly.HTMLElement) {
+		parseError = nil
 		h.ForEach("tr", func(i int, h *colly.HTMLElement) {
 			if i == 0 {
 				// Skip the header.
@@ -104,6 +110,9 @@ func (c *Client) Inbox() ([]*MessageListing, error) {
 	}
 	if parseError != nil {
 		return nil, parseError
+	}
+	if len(messages) == 0 && !foundContainer {
+		return nil, errors.New("failed to list inbox: could not find messages")
 	}
 	return messages, nil
 }

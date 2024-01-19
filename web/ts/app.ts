@@ -19,6 +19,7 @@ abstract class Panel<Item> {
     listElement: HTMLOListElement;
     errorElement: HTMLElement;
     errorElementError: HTMLElement;
+    elementCache: Map<string, HTMLElement> = new Map();
 
     constructor(list_id: string) {
         this.listElement = document.getElementById(list_id) as HTMLOListElement;
@@ -35,9 +36,7 @@ abstract class Panel<Item> {
         errorElementClose.className = 'panel-error-dialog-close';
         this.errorElement.appendChild(this.errorElementError);
         this.errorElement.appendChild(errorElementClose);
-        errorElementClose.addEventListener('click', () => {
-            this.container.removeChild(this.errorElement);
-        });
+        errorElementClose.addEventListener('click', () => this.closeError());
         errorElementClose.textContent = 'Close';
 
         this.refresh();
@@ -57,8 +56,17 @@ abstract class Panel<Item> {
             this.showError(e.toString());
             return;
         }
+        this.closeError();
+
+        const prevCache = this.elementCache;
+        this.elementCache = new Map();
         this.listElement.innerHTML = '';
-        results.forEach((x) => this.listElement.appendChild(this.createListItem(x)));
+        results.forEach((x) => {
+            const key = deterministicJSON(x);
+            let elem = prevCache.get(key) || this.createListItem(x);
+            this.listElement.appendChild(elem)
+            this.elementCache.set(key, elem);
+        });
         this.container.classList.remove('panel-loading');
     }
 
@@ -66,6 +74,12 @@ abstract class Panel<Item> {
         this.errorElementError.textContent = e;
         if (!this.errorElement.parentNode) {
             this.container.appendChild(this.errorElement);
+        }
+    }
+
+    closeError() {
+        if (this.errorElement.parentElement) {
+            this.container.removeChild(this.errorElement);
         }
     }
 }
@@ -236,6 +250,21 @@ class PackagesPanel extends Panel<Package> {
         field.appendChild(nameLabel);
         field.appendChild(valueLabel);
         return field;
+    }
+}
+
+function deterministicJSON(obj: any): string {
+    if ('string' == typeof obj || 'number' == typeof obj || 'boolean' == typeof obj
+        || obj === null) {
+        return JSON.stringify(obj);
+    } else if (Array.isArray(obj)) {
+        return '[' + obj.map(deterministicJSON).join(',') + ']';
+    } else {
+        const keys = Object.keys(obj);
+        keys.sort();
+        return '{' + keys.map((k) => {
+            return JSON.stringify(k) + ':' + deterministicJSON(obj[k]);
+        }).join(',') + '}';
     }
 }
 

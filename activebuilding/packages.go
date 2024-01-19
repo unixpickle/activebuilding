@@ -1,6 +1,7 @@
 package activebuilding
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -27,7 +28,9 @@ type Package struct {
 func (c *Client) Packages() ([]*Package, error) {
 	tableSelector := "div.pending table, div.history table"
 	packages := []*Package{}
+	var foundTables int
 	c.collector.OnHTML(tableSelector, func(h *colly.HTMLElement) {
+		foundTables += 1
 		items := tableToItems(h)
 		for _, item := range items {
 			arrivalStr, _ := item["Arrival"]
@@ -54,6 +57,11 @@ func (c *Client) Packages() ([]*Package, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to find packages: %w", err)
 	}
+
+	if foundTables == 0 {
+		return nil, errors.New("did not find any package tables")
+	}
+
 	return packages, nil
 }
 
