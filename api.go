@@ -13,8 +13,9 @@ import (
 )
 
 type APIServer struct {
-	Client    *activebuilding.Client
-	StatePath string
+	Client     *activebuilding.Client
+	ScriptData *ScriptData
+	StatePath  string
 
 	// Login parameters.
 	LoginURL string
@@ -74,6 +75,30 @@ func (a *APIServer) Wall(w http.ResponseWriter, r *http.Request) {
 	handleAPICall(a, w, func() ([]*activebuilding.WallPost, error) {
 		return a.Client.WallPage(1)
 	})
+}
+
+func (a *APIServer) KV(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "POST" {
+		secret := r.FormValue("secret")
+		key := r.FormValue("key")
+		value := r.FormValue("value")
+		handleAPICall(a, w, func() (bool, error) {
+			err := a.ScriptData.SetData(secret, key, value)
+			if err != nil {
+				return false, err
+			} else {
+				return true, err
+			}
+		})
+	} else {
+		key := r.URL.Query().Get("key")
+		handleAPICall(a, w, func() (string, error) {
+			if key == "" {
+				return "", errors.New("must provide key argument")
+			}
+			return a.ScriptData.GetData(key), nil
+		})
+	}
 }
 
 func handleAPICall[T any](a *APIServer, w http.ResponseWriter, f func() (T, error)) {

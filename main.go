@@ -15,9 +15,12 @@ import (
 
 func main() {
 	var statePath string
+	var scriptDataPath string
 	var addr string
 	var assetDir string
 	flag.StringVar(&statePath, "state-path", "state.json", "client state")
+	flag.StringVar(&scriptDataPath, "script-data-path", "script_data.json",
+		"state from external scripts")
 	flag.StringVar(&addr, "addr", ":8080", "address to listen on")
 	flag.StringVar(&assetDir, "asset-dir", "./web", "address to listen on")
 	flag.Parse()
@@ -25,16 +28,20 @@ func main() {
 	loginURL := os.Getenv("LOGIN_URL")
 	username := os.Getenv("USERNAME")
 	password := os.Getenv("PASSWORD")
-	if loginURL == "" || username == "" || password == "" {
-		essentials.Die("Must pass env vars: LOGIN_URL, USERNAME, and PASSWORD")
+	scriptSecret := os.Getenv("SCRIPT_SECRET")
+	if loginURL == "" || username == "" || password == "" || scriptSecret == "" {
+		essentials.Die("Must pass env vars: LOGIN_URL, USERNAME, PASSWORD, and SCRIPT_SECRET")
 	}
 	client := activebuilding.NewClient()
+	sd, err := NewScriptData(scriptDataPath, scriptSecret)
+	essentials.Must(err)
 	apiServer := &APIServer{
-		Client:    client,
-		StatePath: statePath,
-		LoginURL:  loginURL,
-		Email:     username,
-		Password:  password,
+		Client:     client,
+		ScriptData: sd,
+		StatePath:  statePath,
+		LoginURL:   loginURL,
+		Email:      username,
+		Password:   password,
 	}
 	if err := apiServer.LoadState(); err != nil {
 		essentials.Die("failed to load state:", err)
@@ -43,6 +50,7 @@ func main() {
 	http.HandleFunc("/api/message", apiServer.Message)
 	http.HandleFunc("/api/packages", apiServer.Packages)
 	http.HandleFunc("/api/wall", apiServer.Wall)
+	http.HandleFunc("/api/kv", apiServer.KV)
 	http.Handle("/", http.FileServer(http.Dir(assetDir)))
 	log.Printf("attempting to listen on: %s", addr)
 	http.ListenAndServe(addr, nil)
