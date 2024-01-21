@@ -46,6 +46,17 @@ async function fetchWall(): Promise<WallPost[]> {
     return await fetchAPI<WallPost[]>('/api/wall')
 }
 
+interface CalendarEvent {
+    name: string
+    allDay: boolean
+    startTime: number
+    endTime: number
+}
+
+async function fetchCalendar(): Promise<CalendarEvent[]> {
+    return fetchScriptKey('calendar');
+}
+
 interface APIResponse<T> extends Object {
     error?: string
     data?: T
@@ -63,4 +74,9 @@ async function fetchAPI<T>(url: string): Promise<T> {
         throw new APIError(result.error)
     }
     return result.data
+}
+
+async function fetchScriptKey<T>(key: string): Promise<T> {
+    const data = await fetchAPI<string>('/api/kv?key=' + encodeURIComponent(key));
+    return JSON.parse(data) as T;
 }

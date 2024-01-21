@@ -6,11 +6,13 @@ class App {
     messages: MessagesPanel;
     wall: WallPanel;
     packages: PackagesPanel;
+    calendar: CalendarPanel;
 
     constructor() {
         this.messages = new MessagesPanel();
         this.wall = new WallPanel();
         this.packages = new PackagesPanel();
+        this.calendar = new CalendarPanel();
     }
 }
 
@@ -250,6 +252,40 @@ class PackagesPanel extends Panel<Package> {
         field.appendChild(nameLabel);
         field.appendChild(valueLabel);
         return field;
+    }
+}
+
+class CalendarPanel extends Panel<CalendarEvent> {
+    constructor() {
+        super('calendar');
+    }
+
+    async fetchResults(): Promise<CalendarEvent[]> {
+        return await fetchCalendar();
+    }
+
+    createListItem(item: CalendarEvent): HTMLLIElement {
+        const result = document.createElement('li');
+        result.className = 'calendar-item';
+        const title = document.createElement('label');
+        title.className = 'calendar-item-title';
+        title.textContent = item.name;
+        const time = document.createElement('label');
+        time.className = 'calendar-item-time';
+        var start = new Date(0);
+        var end = new Date(0);
+        start.setUTCSeconds(item.startTime / 1000);
+        end.setUTCSeconds(item.endTime / 1000);
+        if (item.allDay) {
+            time.textContent = start.toLocaleDateString() + ' - ' + end.toLocaleDateString();
+        } else {
+            const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayOfWeek = daysOfWeek[start.getDay()];
+            time.textContent = `${dayOfWeek} ${start.toLocaleTimeString()} - ${end.toLocaleTimeString()}`;
+        }
+        result.appendChild(title);
+        result.appendChild(time);
+        return result;
     }
 }
 

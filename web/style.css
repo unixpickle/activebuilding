@@ -96,7 +96,14 @@ body {
 #wall-post-list-container {
     top: calc(50% + 8px);
     left: 16px;
-    width: calc(100% - 32px);
+    width: calc(50% - 24px);
+    height: calc(50% - 24px);
+}
+
+#calendar-container {
+    top: calc(50% + 8px);
+    left: calc(50% + 8px);
+    width: calc(50% - 24px);
     height: calc(50% - 24px);
 }
 
@@ -107,7 +114,8 @@ ol {
 
 .package-item,
 .wall-post-item,
-.message-item {
+.message-item,
+.calendar-item {
     list-style-type: none;
     margin: 16px;
     width: calc(100% - 32px);
@@ -199,5 +207,10 @@ ol {
 
 .package-item-field-name {
     margin-right: 5px;
+    font-weight: bolder;
+}
+
+.calendar-item-title {
+    display: block;
     font-weight: bolder;
 }

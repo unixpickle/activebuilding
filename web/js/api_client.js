@@ -29,6 +29,11 @@ function fetchWall() {
         return yield fetchAPI('/api/wall');
     });
 }
+function fetchCalendar() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return fetchScriptKey('calendar');
+    });
+}
 class APIError extends Error {
     constructor(message) {
         super(`error from API backend: ${message}`);
@@ -41,6 +46,12 @@ function fetchAPI(url) {
             throw new APIError(result.error);
         }
         return result.data;
+    });
+}
+function fetchScriptKey(key) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const data = yield fetchAPI('/api/kv?key=' + encodeURIComponent(key));
+        return JSON.parse(data);
     });
 }
 //# sourceMappingURL=api_client.js.map
