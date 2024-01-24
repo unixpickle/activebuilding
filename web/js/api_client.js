@@ -9,7 +9,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 function fetchPackages() {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield fetchAPI('/api/packages');
+        const packages = yield fetchAPI('/api/packages');
+        const external = yield fetchExternalPackages();
+        external.forEach((x) => {
+            packages.push(x);
+        });
+        packages.sort((x, y) => {
+            return dateStringSortKey(y.arrival) - dateStringSortKey(x.arrival);
+        });
+        return packages;
+    });
+}
+function dateStringSortKey(x) {
+    const match = x.match(/([0-9]*)\/([0-9]*)\/([0-9]*),? ([0-9]*):([0-9]*)(:[0-9]*)? (AM|PM)/);
+    if (!match) {
+        return 0;
+    }
+    const month = parseInt(match[1]);
+    const day = parseInt(match[2]);
+    const year = match[3].length == 4 ? parseInt(match[3]) : parseInt('20' + match[3]);
+    const hour = parseInt(match[4]);
+    const minute = parseInt(match[5]);
+    const ampm = match[7];
+    console.log('hi', x, month, day, year, hour, minute, ampm, ((((year - 2000) * 12 + month) * 31 + day) * 24 + (ampm == 'PM' ? 12 : 0) + hour) * 60 + minute);
+    return ((((year - 2000) * 12 + month) * 31 + day) * 24 + (ampm == 'PM' ? 12 : 0) + hour) * 60 + minute;
+}
+function fetchExternalPackages() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return fetchScriptKey("mail");
     });
 }
 function fetchInbox() {

@@ -233,6 +233,8 @@ class PackagesPanel extends Panel<Package> {
             icon.src = "/svg/amazon.svg";
         } else if (item.type == "UPS") {
             icon.src = "/svg/ups.svg";
+        } else if (item.type == "Amazon Locker") {
+            icon.src = "/svg/locker.svg";
         } else {
             icon.src = "/svg/amazon_box.svg";
         }
