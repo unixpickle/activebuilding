@@ -70,23 +70,25 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 		postObj.Find(".post-time-holder").Each(func(_ int, contentObj *goquery.Selection) {
 			post.RelativeTime = contentObj.Text()
 		})
-		postObj.Find(".post-main-content").Each(func(_ int, contentObj *goquery.Selection) {
-			for _, parentNode := range contentObj.Nodes {
-				node := parentNode.FirstChild
-				for node != nil {
-					if node.Type == html.ElementNode && node.Data == "div" {
-						// Skip marketplace info.
+		postObj.Find(".post-main-content, .wall-post-attachment").Each(
+			func(_ int, contentObj *goquery.Selection) {
+				for _, parentNode := range contentObj.Nodes {
+					node := parentNode.FirstChild
+					for node != nil {
+						if node.Type == html.ElementNode && node.Data == "div" {
+							// Skip marketplace info.
+							node = node.NextSibling
+							continue
+						} else {
+							SanitizeHTML(&htmlBuf, node)
+							post.ContentsText += goquery.NewDocumentFromNode(node).Text() + "\n"
+						}
 						node = node.NextSibling
-						continue
-					} else {
-						SanitizeHTML(&htmlBuf, node)
-						post.ContentsText += goquery.NewDocumentFromNode(node).Text() + "\n"
 					}
-					node = node.NextSibling
 				}
-			}
-			post.MarketplaceName = contentObj.Find(".marketplace-item-name").Text()
-		})
+				post.MarketplaceName = contentObj.Find(".marketplace-item-name").Text()
+			},
+		)
 		post.ContentsHTML = htmlBuf.String()
 		post.ContentsText = strings.TrimSpace(post.ContentsText)
 

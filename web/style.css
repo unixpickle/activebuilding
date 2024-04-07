@@ -158,6 +158,14 @@ ol {
     background-image: url(/svg/close.svg);
 }
 
+.message-item-body img {
+    width: 100%;
+}
+
+.message-item-body a {
+    word-break: break-all;
+}
+
 .wall-post-item-header::after {
     content: ' ';
     display: block;
@@ -176,6 +184,14 @@ ol {
 .wall-post-item-contents {
     word-break: break-all;
     margin-top: 8px;
+}
+
+.wall-post-item-contents img {
+    width: 100%;
+}
+
+.wall-post-item-contents a {
+    word-break: break-all;
 }
 
 .package-item {
