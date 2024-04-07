@@ -20,8 +20,8 @@ type Package struct {
 	Arrival     string  `json:"arrival"`
 	Type        string  `json:"type"`
 	Description string  `json:"description"`
-	AcceptedBy  string  `json:"accepted_by"`
-	ReleasedBy  *string `json:"released_by"`
+	AcceptedBy  string  `json:"acceptedBy"`
+	ReleasedBy  *string `json:"releasedBy"`
 }
 
 // Packages lists the tenant's recent mail.

@@ -117,7 +117,7 @@ class MessagePanelItem {
         this.element.appendChild(sender);
         const date = document.createElement('label');
         date.className = 'message-item-date';
-        date.textContent = item.last_activity;
+        date.textContent = item.lastActivity;
         this.element.appendChild(date);
         const subject = document.createElement('label');
         subject.className = 'message-item-subject';
@@ -166,7 +166,7 @@ class MessagePanelItem {
             this.messageBody.replaceChildren(error);
             return;
         }
-        this.messageBody.innerHTML = message.body_html;
+        this.messageBody.innerHTML = message.bodyHTML;
     }
 }
 
@@ -186,16 +186,16 @@ class WallPanel extends Panel<WallPost> {
         header.className = 'wall-post-item-header';
         const posterName = document.createElement('label');
         posterName.className = 'wall-post-item-poster-name';
-        posterName.textContent = item.poster_name;
+        posterName.textContent = item.posterName;
         const postTime = document.createElement('label');
         postTime.className = 'wall-post-item-post-time';
-        postTime.textContent = item.relative_time;
+        postTime.textContent = item.relativeTime;
         header.appendChild(posterName);
         header.appendChild(postTime);
         result.appendChild(header);
         const contents = document.createElement('div');
         contents.className = 'wall-post-item-contents';
-        contents.innerHTML = item.contents_html;
+        contents.innerHTML = item.contentsHTML;
         result.appendChild(contents);
         return result;
     }
@@ -220,8 +220,8 @@ class PackagesPanel extends Panel<Package> {
         if (item.description) {
             fields.appendChild(this.createField('Description', item.description));
         }
-        fields.appendChild(this.createField('Accepted By', item.accepted_by));
-        fields.appendChild(this.createField('Released By', item.released_by));
+        fields.appendChild(this.createField('Accepted By', item.acceptedBy));
+        fields.appendChild(this.createField('Released By', item.releasedBy));
         result.appendChild(fields);
         const icon = document.createElement('img');
         icon.className = 'package-item-icon';

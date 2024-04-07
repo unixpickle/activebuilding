@@ -22,7 +22,7 @@ type MessageListing struct {
 	Folder string `json:"folder"`
 
 	// This is a human-readable timestamp.
-	LastActivity string `json:"last_activity"`
+	LastActivity string `json:"lastActivity"`
 
 	// Name of sender (typically plain text, not a real username)
 	Username string `json:"username"`
@@ -36,8 +36,8 @@ type MessageListing struct {
 
 // MessageBody is the full contents of a message.
 type MessageBody struct {
-	BodyHTML string `json:"body_html"`
-	BodyText string `json:"body_text"`
+	BodyHTML string `json:"bodyHTML"`
+	BodyText string `json:"bodyText"`
 }
 
 // Inbox fetches an overview of messages in the user's inbox.

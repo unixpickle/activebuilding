@@ -31,7 +31,6 @@ function dateStringSortKey(x) {
     const hour = parseInt(match[4]);
     const minute = parseInt(match[5]);
     const ampm = match[7];
-    console.log('hi', x, month, day, year, hour, minute, ampm, ((((year - 2000) * 12 + month) * 31 + day) * 24 + (ampm == 'PM' ? 12 : 0) + hour) * 60 + minute);
     return ((((year - 2000) * 12 + month) * 31 + day) * 24 + (ampm == 'PM' ? 12 : 0) + hour) * 60 + minute;
 }
 function fetchExternalPackages() {
@@ -46,9 +45,9 @@ function fetchInbox() {
 }
 function fetchMessage(id, folder) {
     return __awaiter(this, void 0, void 0, function* () {
-        const escaped_id = encodeURIComponent(id);
-        const escaped_folder = encodeURIComponent(folder);
-        return yield fetchAPI(`/api/message?id=${escaped_id}&folder=${escaped_folder}`);
+        const escapedID = encodeURIComponent(id);
+        const escapedFolder = encodeURIComponent(folder);
+        return yield fetchAPI(`/api/message?id=${escapedID}&folder=${escapedFolder}`);
     });
 }
 function fetchWall() {

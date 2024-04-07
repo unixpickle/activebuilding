@@ -17,11 +17,11 @@ const (
 )
 
 type WallPost struct {
-	PosterName      string `json:"poster_name"`
-	RelativeTime    string `json:"relative_time"`
-	MarketplaceName string `json:"marketplace_name"`
-	ContentsText    string `json:"contents_text"`
-	ContentsHTML    string `json:"contents_html"`
+	PosterName      string `json:"posterName"`
+	RelativeTime    string `json:"relativeTime"`
+	MarketplaceName string `json:"marketplaceName"`
+	ContentsText    string `json:"contentsText"`
+	ContentsHTML    string `json:"contentsHTML"`
 }
 
 func (c *Client) WallPage(page int) ([]*WallPost, error) {

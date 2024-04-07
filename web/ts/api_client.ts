@@ -2,8 +2,8 @@ interface Package {
     arrival: string
     type: string
     description: string
-    accepted_by: string
-    released_by: string // may be null for packages which are pending
+    acceptedBy: string
+    releasedBy: string // may be null for packages which are pending
 }
 
 async function fetchPackages(): Promise<Package[]> {
@@ -29,7 +29,6 @@ function dateStringSortKey(x: string): number {
     const hour = parseInt(match[4]);
     const minute = parseInt(match[5]);
     const ampm = match[7];
-    console.log('hi', x, month, day, year, hour, minute, ampm, ((((year - 2000) * 12 + month) * 31 + day) * 24 + (ampm == 'PM' ? 12 : 0) + hour) * 60 + minute);
     return ((((year - 2000) * 12 + month) * 31 + day) * 24 + (ampm == 'PM' ? 12 : 0) + hour) * 60 + minute;
 }
 
@@ -40,7 +39,7 @@ async function fetchExternalPackages(): Promise<Package[]> {
 interface MessageListing {
     id: string
     folder: string
-    last_activity: string
+    lastActivity: string
     username: string
     subject: string
     preview: string
@@ -51,22 +50,22 @@ async function fetchInbox(): Promise<MessageListing[]> {
 }
 
 interface MessageBody {
-    body_html: string
-    body_text: string
+    bodyHTML: string
+    bodyText: string
 }
 
 async function fetchMessage(id: string, folder: string): Promise<MessageBody> {
-    const escaped_id = encodeURIComponent(id);
-    const escaped_folder = encodeURIComponent(folder);
-    return await fetchAPI<MessageBody>(`/api/message?id=${escaped_id}&folder=${escaped_folder}`);
+    const escapedID = encodeURIComponent(id);
+    const escapedFolder = encodeURIComponent(folder);
+    return await fetchAPI<MessageBody>(`/api/message?id=${escapedID}&folder=${escapedFolder}`);
 }
 
 interface WallPost {
-    poster_name: string
-    relative_time: string
-    marketplace_name: string
-    contents_text: string
-    contents_html: string
+    posterName: string
+    relativeTime: string
+    marketplaceName: string
+    contentsText: string
+    contentsHTML: string
 }
 
 async function fetchWall(): Promise<WallPost[]> {

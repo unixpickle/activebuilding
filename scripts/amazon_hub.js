@@ -18,9 +18,9 @@ function getHubPackages() {
                 const subject = message.getSubject();
                 const words = subject.split(' ');
                 packages.push({
-                    accepted_by: words[words.length - 1],
+                    acceptedBy: words[words.length - 1],
                     type: "Amazon Locker",
-                    released_by: null,
+                    releasedBy: null,
                     description: "",
                     arrival: dateToString(message.getDate()),
                     sortKey: message.getDate().getTime(),
@@ -32,7 +32,7 @@ function getHubPackages() {
     packages.sort((x, y) => x.sortKey - y.sortKey);
     const seen = {};
     const filteredPackages = packages.filter((x) => {
-        const pin = x.accepted_by;
+        const pin = x.acceptedBy;
         if (seen.hasOwnProperty(pin)) {
             return false;
         }
