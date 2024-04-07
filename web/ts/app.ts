@@ -193,10 +193,26 @@ class WallPanel extends Panel<WallPost> {
         header.appendChild(posterName);
         header.appendChild(postTime);
         result.appendChild(header);
+
         const contents = document.createElement('div');
         contents.className = 'wall-post-item-contents';
         contents.innerHTML = item.contentsHTML;
         result.appendChild(contents);
+
+        if (item.attachmentsHTML) {
+            const attachments = document.createElement('div');
+            attachments.className = 'wall-post-item-attachments wall-post-item-attachments-hidden';
+            attachments.innerHTML = item.attachmentsHTML;
+            const attachmentsToggle = document.createElement('button');
+            attachmentsToggle.className = 'wall-post-item-attachments-button';
+            attachmentsToggle.addEventListener('click', () => {
+                attachments.classList.toggle('wall-post-item-attachments-hidden');
+                attachmentsToggle.classList.toggle('wall-post-item-attachments-button-collapse');
+            });
+            contents.appendChild(attachments);
+            contents.appendChild(attachmentsToggle);
+        }
+
         return result;
     }
 }

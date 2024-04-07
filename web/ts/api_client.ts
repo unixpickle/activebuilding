@@ -66,6 +66,7 @@ interface WallPost {
     marketplaceName: string
     contentsText: string
     contentsHTML: string
+    attachmentsHTML: string
 }
 
 async function fetchWall(): Promise<WallPost[]> {

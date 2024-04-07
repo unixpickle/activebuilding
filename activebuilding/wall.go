@@ -22,6 +22,7 @@ type WallPost struct {
 	MarketplaceName string `json:"marketplaceName"`
 	ContentsText    string `json:"contentsText"`
 	ContentsHTML    string `json:"contentsHTML"`
+	AttachmentsHTML string `json:"attachmentsHTML"`
 }
 
 func (c *Client) WallPage(page int) ([]*WallPost, error) {
@@ -70,7 +71,7 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 		postObj.Find(".post-time-holder").Each(func(_ int, contentObj *goquery.Selection) {
 			post.RelativeTime = contentObj.Text()
 		})
-		postObj.Find(".post-main-content, .wall-post-attachment").Each(
+		postObj.Find(".post-main-content").Each(
 			func(_ int, contentObj *goquery.Selection) {
 				for _, parentNode := range contentObj.Nodes {
 					node := parentNode.FirstChild
@@ -91,6 +92,16 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 		)
 		post.ContentsHTML = htmlBuf.String()
 		post.ContentsText = strings.TrimSpace(post.ContentsText)
+
+		var attachmentsBuf strings.Builder
+		postObj.Find(".wall-post-attachment").Each(
+			func(_ int, contentObj *goquery.Selection) {
+				for _, node := range contentObj.Nodes {
+					SanitizeHTML(&attachmentsBuf, node)
+				}
+			},
+		)
+		post.AttachmentsHTML = attachmentsBuf.String()
 
 		posts = append(posts, &post)
 	})
