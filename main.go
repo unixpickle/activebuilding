@@ -26,7 +26,10 @@ func main() {
 	flag.Parse()
 
 	loginURL := os.Getenv("LOGIN_URL")
-	username := os.Getenv("USERNAME")
+	username := os.Getenv("AB_USERNAME")
+	if username == "" {
+		username = os.Getenv("USERNAME")
+	}
 	password := os.Getenv("PASSWORD")
 	scriptSecret := os.Getenv("SCRIPT_SECRET")
 	if loginURL == "" || username == "" || password == "" || scriptSecret == "" {

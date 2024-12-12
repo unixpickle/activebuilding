@@ -62,16 +62,16 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 		return nil, fmt.Errorf("error parsing wall post response: %w", responseErr)
 	}
 	var posts []*WallPost
-	responseDoc.Find(".post-content-holder").Each(func(_ int, postObj *goquery.Selection) {
+	responseDoc.Find(".post-holder").Each(func(_ int, postObj *goquery.Selection) {
 		var post WallPost
-		postObj.Find(".post-author-name").Each(func(_ int, nameObj *goquery.Selection) {
-			post.PosterName = nameObj.Text()
+		postObj.Find(".post-holder-author").Each(func(_ int, nameObj *goquery.Selection) {
+			post.PosterName = strings.TrimSpace(nameObj.Text())
 		})
 		var htmlBuf strings.Builder
-		postObj.Find(".post-time-holder").Each(func(_ int, contentObj *goquery.Selection) {
+		postObj.Find(".post-holder-time").Each(func(_ int, contentObj *goquery.Selection) {
 			post.RelativeTime = contentObj.Text()
 		})
-		postObj.Find(".post-main-content").Each(
+		postObj.Find(".post-holder-body").Each(
 			func(_ int, contentObj *goquery.Selection) {
 				for _, parentNode := range contentObj.Nodes {
 					node := parentNode.FirstChild
@@ -94,7 +94,7 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 		post.ContentsText = strings.TrimSpace(post.ContentsText)
 
 		var attachmentsBuf strings.Builder
-		postObj.Find(".wall-post-attachment").Each(
+		postObj.Find(".post-holder-attachment").Each(
 			func(_ int, contentObj *goquery.Selection) {
 				for _, node := range contentObj.Nodes {
 					SanitizeHTML(&attachmentsBuf, node)

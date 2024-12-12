@@ -33,7 +33,8 @@ function dateStringSortKey(x: string): number {
 }
 
 async function fetchExternalPackages(): Promise<Package[]> {
-    return fetchScriptKey("mail");
+    let result: Package[] = await fetchScriptKey("mail");
+    return result == null ? [] : result;
 }
 
 interface MessageListing {
@@ -81,7 +82,8 @@ interface CalendarEvent {
 }
 
 async function fetchCalendar(): Promise<CalendarEvent[]> {
-    return fetchScriptKey('calendar');
+    let results: CalendarEvent[] = await fetchScriptKey('calendar');
+    return results == null ? [] : results;
 }
 
 interface APIResponse<T> extends Object {
@@ -105,5 +107,8 @@ async function fetchAPI<T>(url: string): Promise<T> {
 
 async function fetchScriptKey<T>(key: string): Promise<T> {
     const data = await fetchAPI<string>('/api/kv?key=' + encodeURIComponent(key));
+    if (data == '') {
+        return null;
+    }
     return JSON.parse(data) as T;
 }

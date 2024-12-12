@@ -35,7 +35,8 @@ function dateStringSortKey(x) {
 }
 function fetchExternalPackages() {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetchScriptKey("mail");
+        let result = yield fetchScriptKey("mail");
+        return result == null ? [] : result;
     });
 }
 function fetchInbox() {
@@ -57,7 +58,8 @@ function fetchWall() {
 }
 function fetchCalendar() {
     return __awaiter(this, void 0, void 0, function* () {
-        return fetchScriptKey('calendar');
+        let results = yield fetchScriptKey('calendar');
+        return results == null ? [] : results;
     });
 }
 class APIError extends Error {
@@ -77,6 +79,9 @@ function fetchAPI(url) {
 function fetchScriptKey(key) {
     return __awaiter(this, void 0, void 0, function* () {
         const data = yield fetchAPI('/api/kv?key=' + encodeURIComponent(key));
+        if (data == '') {
+            return null;
+        }
         return JSON.parse(data);
     });
 }
