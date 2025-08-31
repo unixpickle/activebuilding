@@ -31,7 +31,7 @@ func NewClient() *Client {
 func (c *Client) collector() *colly.Collector {
 	co := colly.NewCollector()
 	co.Init()
-	co.SetStorage(&dummyStorage{})
+	co.SetStorage(c.storage)
 	return co
 }
 
