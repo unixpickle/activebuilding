@@ -14,21 +14,23 @@ func (c *Client) Login(loginURL, email, password string) error {
 	// redirecting to a page we had tried to go to.
 	c.SetState(nil)
 
+	co := c.collector()
+
 	formInputs := map[string]string{}
 	var lastURL *url.URL
-	c.collector.SetRedirectHandler(func(r *http.Request, via []*http.Request) error {
+	co.SetRedirectHandler(func(r *http.Request, via []*http.Request) error {
 		lastURL = r.URL
 		return nil
 	})
-	defer c.collector.SetRedirectHandler(nil)
+	defer co.SetRedirectHandler(nil)
 
-	c.collector.OnHTML("input", func(h *colly.HTMLElement) {
+	co.OnHTML("input", func(h *colly.HTMLElement) {
 		formInputs[h.Attr("name")] = h.Attr("value")
 	})
-	err := c.collector.Post(loginURL, map[string]string{
+	err := co.Post(loginURL, map[string]string{
 		"username": email,
 	})
-	c.collector.OnHTMLDetach("input")
+	co.OnHTMLDetach("input")
 	if err != nil {
 		return err
 	}
@@ -38,7 +40,7 @@ func (c *Client) Login(loginURL, email, password string) error {
 		return errors.New("login username was not recognized")
 	}
 	formInputs["Password"] = password
-	c.collector.Post(lastURL.String(), formInputs)
+	co.Post(lastURL.String(), formInputs)
 
 	// If we stayed on the login page, then the password was wrong.
 	// Good password => https://*.activebuilding.com/portal/resident-dashboard

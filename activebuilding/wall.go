@@ -26,9 +26,11 @@ type WallPost struct {
 }
 
 func (c *Client) WallPage(page int) ([]*WallPost, error) {
+	co := c.collector()
+
 	var responseErr error
 	var responseDoc *goquery.Document
-	c.collector.OnResponse(func(r *colly.Response) {
+	co.OnResponse(func(r *colly.Response) {
 		var responseObj struct {
 			Status string `json:"status"`
 			Data   struct {
@@ -47,8 +49,8 @@ func (c *Client) WallPage(page int) ([]*WallPost, error) {
 			return
 		}
 	})
-	err := c.withLoginCheck(func() error {
-		return c.collector.Post(c.urlForPath(wallPath), map[string]string{
+	err := c.withLoginCheck(co, func() error {
+		return co.Post(c.urlForPath(wallPath), map[string]string{
 			"group":  "1",
 			"page":   strconv.Itoa(page),
 			"filter": "all",

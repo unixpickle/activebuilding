@@ -18,16 +18,21 @@ var (
 //
 // Methods are generally not safe to call concurrently.
 type Client struct {
-	collector *colly.Collector
-	baseURL   *url.URL
+	storage *dummyStorage
+	baseURL *url.URL
 }
 
 func NewClient() *Client {
-	c := colly.NewCollector()
-	c.SetStorage(&dummyStorage{})
 	return &Client{
-		collector: c,
+		storage: &dummyStorage{},
 	}
+}
+
+func (c *Client) collector() *colly.Collector {
+	co := colly.NewCollector()
+	co.Init()
+	co.SetStorage(&dummyStorage{})
+	return co
 }
 
 // MustLogin returns true if the client definitely doesn't have credentials to
@@ -45,34 +50,33 @@ func (c *Client) State() *ClientState {
 	}
 	return &ClientState{
 		BaseURL: c.baseURL.String(),
-		Cookies: c.collector.Cookies(c.baseURL.String()),
+		Cookies: c.collector().Cookies(c.baseURL.String()),
 	}
 }
 
 func (c *Client) SetState(state *ClientState) error {
-	c.collector.Init()
-	c.collector.SetStorage(&dummyStorage{})
 	if state == nil {
 		return nil
 	}
-	c.collector.SetCookies(state.BaseURL, state.Cookies)
-	var err error
-	c.baseURL, err = url.Parse(state.BaseURL)
-	if err != nil {
+
+	if err := c.collector().SetCookies(state.BaseURL, state.Cookies); err != nil {
+		return err
+	} else if c.baseURL, err = url.Parse(state.BaseURL); err != nil {
 		return fmt.Errorf("failed to load state: %w", err)
 	}
+
 	return nil
 }
 
-func (c *Client) visitWithLoginCheck(path string) error {
+func (c *Client) visitWithLoginCheck(co *colly.Collector, path string) error {
 	var redirected *url.URL
-	c.collector.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
+	co.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
 		redirected = req.URL
 		return nil
 	})
-	defer c.collector.SetRedirectHandler(nil)
+	defer co.SetRedirectHandler(nil)
 
-	err := c.collector.Visit(c.urlForPath(path))
+	err := co.Visit(c.urlForPath(path))
 	if err != nil {
 		return err
 	}
@@ -82,13 +86,13 @@ func (c *Client) visitWithLoginCheck(path string) error {
 	return nil
 }
 
-func (c *Client) withLoginCheck(f func() error) error {
+func (c *Client) withLoginCheck(co *colly.Collector, f func() error) error {
 	var redirected *url.URL
-	c.collector.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
+	co.SetRedirectHandler(func(req *http.Request, via []*http.Request) error {
 		redirected = req.URL
 		return nil
 	})
-	defer c.collector.SetRedirectHandler(nil)
+	defer co.SetRedirectHandler(nil)
 
 	if err := f(); err != nil {
 		return err
@@ -115,6 +119,6 @@ type dummyStorage struct {
 }
 
 func (d *dummyStorage) Visited(requestID uint64) error {
-	// Do not cache every URL we visit.
+	// Do not cache every URL we visit to avoid unbounded memory growth.
 	return nil
 }

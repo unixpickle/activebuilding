@@ -26,10 +26,12 @@ type Package struct {
 
 // Packages lists the tenant's recent mail.
 func (c *Client) Packages() ([]*Package, error) {
+	co := c.collector()
+
 	tableSelector := "div.pending table, div.history table"
 	packages := []*Package{}
 	var foundTables int
-	c.collector.OnHTML(tableSelector, func(h *colly.HTMLElement) {
+	co.OnHTML(tableSelector, func(h *colly.HTMLElement) {
 		foundTables += 1
 		items := tableToItems(h)
 		for _, item := range items {
@@ -51,9 +53,9 @@ func (c *Client) Packages() ([]*Package, error) {
 			})
 		}
 	})
-	defer c.collector.OnHTMLDetach(tableSelector)
+	defer co.OnHTMLDetach(tableSelector)
 
-	err := c.visitWithLoginCheck(packagesPath)
+	err := c.visitWithLoginCheck(co, packagesPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to find packages: %w", err)
 	}

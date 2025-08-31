@@ -44,15 +44,17 @@ type MessageBody struct {
 //
 // To get more details about a message, see Message().
 func (c *Client) Inbox() ([]*MessageListing, error) {
+	co := c.collector()
+
 	tableSelector := ".messages-container-section table"
 	messages := []*MessageListing{}
 	var parseError error
 	var foundContainer bool
-	c.collector.OnHTML(".messages-container-section", func(_ *colly.HTMLElement) {
+	co.OnHTML(".messages-container-section", func(_ *colly.HTMLElement) {
 		foundContainer = true
 	})
-	defer c.collector.OnHTMLDetach(".messages-container-section")
-	c.collector.OnHTML(tableSelector, func(h *colly.HTMLElement) {
+	defer co.OnHTMLDetach(".messages-container-section")
+	co.OnHTML(tableSelector, func(h *colly.HTMLElement) {
 		parseError = nil
 		h.ForEach("tr", func(i int, h *colly.HTMLElement) {
 			if i == 0 {
@@ -102,9 +104,9 @@ func (c *Client) Inbox() ([]*MessageListing, error) {
 			})
 		})
 	})
-	defer c.collector.OnHTMLDetach(tableSelector)
+	defer co.OnHTMLDetach(tableSelector)
 
-	err := c.visitWithLoginCheck(inboxPath)
+	err := c.visitWithLoginCheck(co, inboxPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list inbox: %w", err)
 	}
@@ -119,9 +121,11 @@ func (c *Client) Inbox() ([]*MessageListing, error) {
 
 // Message fetches the body of a message.
 func (c *Client) Message(id, folder string) (*MessageBody, error) {
+	co := c.collector()
+
 	textSelector := ".message-text"
 	var result *MessageBody
-	c.collector.OnHTML(textSelector, func(h *colly.HTMLElement) {
+	co.OnHTML(textSelector, func(h *colly.HTMLElement) {
 		if result != nil {
 			return
 		}
@@ -138,14 +142,14 @@ func (c *Client) Message(id, folder string) (*MessageBody, error) {
 			BodyHTML: buf.String(),
 		}
 	})
-	defer c.collector.OnHTMLDetach(textSelector)
+	defer co.OnHTMLDetach(textSelector)
 
 	path := fmt.Sprintf(
 		"/portal/messages/view/messageId/%s/folder/%s",
 		url.PathEscape(id),
 		url.PathEscape(folder),
 	)
-	err := c.visitWithLoginCheck(path)
+	err := c.visitWithLoginCheck(co, path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch message: %w", err)
 	}
